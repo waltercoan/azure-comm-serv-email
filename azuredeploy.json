@@ -1,0 +1,67 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "emailServices_emailcomserv_coden3_poc_brazilsouth_name": {
+            "defaultValue": "emailcomserv-coden3-poc-brazilsouth",
+            "type": "String"
+        },
+        "CommunicationServices_commserv_coden3_poc_brazilsouth_name": {
+            "defaultValue": "commserv-coden3-poc-brazilsouth",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Communication/emailServices",
+            "apiVersion": "2023-06-01-preview",
+            "name": "[parameters('emailServices_emailcomserv_coden3_poc_brazilsouth_name')]",
+            "location": "global",
+            "properties": {
+                "dataLocation": "Brazil"
+            }
+        },
+        {
+            "type": "Microsoft.Communication/CommunicationServices",
+            "apiVersion": "2023-06-01-preview",
+            "name": "[parameters('CommunicationServices_commserv_coden3_poc_brazilsouth_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Communication/emailServices/domains', parameters('emailServices_emailcomserv_coden3_poc_brazilsouth_name'), 'AzureManagedDomain')]"
+            ],
+            "properties": {
+                "dataLocation": "brazil",
+                "linkedDomains": [
+                    "[resourceId('Microsoft.Communication/emailServices/domains', parameters('emailServices_emailcomserv_coden3_poc_brazilsouth_name'), 'AzureManagedDomain')]"
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Communication/emailServices/domains",
+            "apiVersion": "2023-06-01-preview",
+            "name": "[concat(parameters('emailServices_emailcomserv_coden3_poc_brazilsouth_name'), '/AzureManagedDomain')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Communication/emailServices', parameters('emailServices_emailcomserv_coden3_poc_brazilsouth_name'))]"
+            ],
+            "properties": {
+                "domainManagement": "AzureManaged",
+                "userEngagementTracking": "Disabled"
+            }
+        },
+        {
+            "type": "microsoft.communication/emailservices/domains/senderusernames",
+            "apiVersion": "2023-06-01-preview",
+            "name": "[concat(parameters('emailServices_emailcomserv_coden3_poc_brazilsouth_name'), '/azuremanageddomain/donotreply')]",
+            "dependsOn": [
+                "[resourceId('microsoft.communication/emailservices/domains', parameters('emailServices_emailcomserv_coden3_poc_brazilsouth_name'), 'azuremanageddomain')]",
+                "[resourceId('microsoft.communication/emailservices', parameters('emailServices_emailcomserv_coden3_poc_brazilsouth_name'))]"
+            ],
+            "properties": {
+                "username": "DoNotReply",
+                "displayName": "DoNotReply"
+            }
+        }
+    ]
+}
